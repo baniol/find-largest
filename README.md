@@ -1,9 +1,10 @@
 USAGE: find-largest {OPTIONS}
 
-    Return a list of largest files in a given folder.
+    Return a list of largest files in a folder.
 
 OPTIONS:
 
+```
   -p, --path [<path>]               Path to parent folder.
 
   -n, --number [<number>]           Number of files to be returned.
@@ -17,3 +18,4 @@ OPTIONS:
                                     Default - bytes.
 
   -h, --help                        Help.
+```

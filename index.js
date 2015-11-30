@@ -3,17 +3,17 @@ var getStats = require('./lib/getstats');
 
 module.exports = findLargest;
 
-function findLargest(dir, number, extension, excluded, formatStr) {
+function findLargest(options) {
 
   var formatTypes = {
     k: 1000,
     m: 1000000
   };
-  var format = formatTypes[formatStr] || 1;
-  var sizeStr = (format == 1) ? '' : formatStr.toUpperCase();
+  var format = formatTypes[options.format] || 1;
+  var sizeStr = (format == 1) ? '' : options.format.toUpperCase();
 
-  return readDir(dir, excluded).then(tree => {
-      return getStats(dir, tree);
+  return readDir(options.dir, options.excluded).then(tree => {
+      return getStats(options.dir, tree);
     })
     .then(stats => {
       return Promise.all(stats).then(stats => {
@@ -24,15 +24,15 @@ function findLargest(dir, number, extension, excluded, formatStr) {
       var result = stats
         .filter(stat => {
           var test = true;
-          if (extension) {
-            var reg = new RegExp('\.' + extension + '$');
+          if (options.extension) {
+            var reg = new RegExp('\.' + options.extension + '$');
             test = reg.test(stat.fileName);
           }
           return stat.isFile() && test;
         })
         .sort(function(a, b) {
           return a.size - b.size;
-        })
+       })
         .map((file, index) => {
           return {
             path: file.fullPath,
@@ -40,9 +40,11 @@ function findLargest(dir, number, extension, excluded, formatStr) {
             size: Math.round((file.size) / format * 100) / 100 + ' ' + sizeStr + 'B'
           };
         });
-      result.splice(0, result.length - number);
+      result.splice(0, result.length - options.number);
       return result.reverse();
     })
     // @TODO error handling
-    .catch(err => console.log(err.stack));
+    .catch(function (err) {
+      throw Error(err);
+    });
 }
